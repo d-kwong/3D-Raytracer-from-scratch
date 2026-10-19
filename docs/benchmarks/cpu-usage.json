@@ -1,0 +1,341 @@
+{
+  "method": "Real renderer processes only. CPU-time ratio includes startup, scene construction, render and PGM output. top sampling runs separately and is excluded from renderer rusage.",
+  "runs": [
+    {
+      "started_utc": "2026-10-19T02:12:09.894607+00:00",
+      "machine": {
+        "os": "Darwin",
+        "os_version": "27.0.1",
+        "architecture": "arm64",
+        "logical_cpus": 10,
+        "cpu": "Apple M4",
+        "physical_cpus": 10,
+        "performance_cores": 4,
+        "efficiency_cores": 6
+      },
+      "binary_sha256": "bcd001560c174767044cc502c449c6dd58b74f3bc7354a521fb392a6e76486bc",
+      "width": 640,
+      "height": 320,
+      "grid": 40,
+      "triangles": 3200,
+      "requested_workers": 1,
+      "cpu_time_source": "os.wait4 rusage.ru_utime + rusage.ru_stime, renderer process only",
+      "cpu_percent_convention": "100% = one fully occupied CPU core; 1000% = ten",
+      "top_command": "top -l 0 -s 1 -pid PID -stats pid,cpu,time,threads",
+      "top_samples": [
+        {
+          "elapsed_seconds": 0.71606775,
+          "cpu_percent": 0.0,
+          "cpu_time_display": "00:00.68",
+          "threads_display": "1/1",
+          "initial_top_sample": true
+        },
+        {
+          "elapsed_seconds": 1.7963391659999999,
+          "cpu_percent": 64.2,
+          "cpu_time_display": "00:01.78",
+          "threads_display": "1/1",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 2.881252875,
+          "cpu_percent": 100.0,
+          "cpu_time_display": "00:02.86",
+          "threads_display": "1/1",
+          "initial_top_sample": false
+        }
+      ],
+      "exit_code": 0,
+      "wall_seconds": 3.192838541,
+      "user_cpu_seconds": 3.143446,
+      "system_cpu_seconds": 0.021273,
+      "total_cpu_seconds": 3.164719,
+      "average_utilized_cores": 0.9911929336109827,
+      "average_cpu_percent": 99.11929336109827,
+      "peak_sampled_cpu_percent": 100.0,
+      "output_sha256": "e0e82e04912a387c5501ce465060c98d1131b3c925209c24a5d6ef2629f6be6b",
+      "actual_workers": 1,
+      "renderer_internal_seconds": 3.17973,
+      "finished_utc": "2026-10-19T02:12:13.105053+00:00"
+    },
+    {
+      "started_utc": "2026-10-19T02:12:32.025804+00:00",
+      "machine": {
+        "os": "Darwin",
+        "os_version": "27.0.1",
+        "architecture": "arm64",
+        "logical_cpus": 10,
+        "cpu": "Apple M4",
+        "physical_cpus": 10,
+        "performance_cores": 4,
+        "efficiency_cores": 6
+      },
+      "binary_sha256": "bcd001560c174767044cc502c449c6dd58b74f3bc7354a521fb392a6e76486bc",
+      "width": 1600,
+      "height": 800,
+      "grid": 100,
+      "triangles": 20000,
+      "requested_workers": 10,
+      "cpu_time_source": "os.wait4 rusage.ru_utime + rusage.ru_stime, renderer process only",
+      "cpu_percent_convention": "100% = one fully occupied CPU core; 1000% = ten",
+      "top_command": "top -l 0 -s 1 -pid PID -stats pid,cpu,time,threads",
+      "top_samples": [
+        {
+          "elapsed_seconds": 0.827468042,
+          "cpu_percent": 0.0,
+          "cpu_time_display": "00:05.54",
+          "threads_display": "11/10",
+          "initial_top_sample": true
+        },
+        {
+          "elapsed_seconds": 1.8980303749999998,
+          "cpu_percent": 515.2,
+          "cpu_time_display": "00:14.90",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 2.965065167,
+          "cpu_percent": 758.6,
+          "cpu_time_display": "00:23.00",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 4.033303792,
+          "cpu_percent": 791.0,
+          "cpu_time_display": "00:31.47",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 5.171734084,
+          "cpu_percent": 764.7,
+          "cpu_time_display": "00:39.66",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 6.22977475,
+          "cpu_percent": 619.1,
+          "cpu_time_display": "00:46.68",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 7.293580084,
+          "cpu_percent": 822.0,
+          "cpu_time_display": "00:55.39",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 8.365085917,
+          "cpu_percent": 770.6,
+          "cpu_time_display": "01:03.59",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 9.43413375,
+          "cpu_percent": 816.9,
+          "cpu_time_display": "01:12.33",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 10.503901542000001,
+          "cpu_percent": 859.3,
+          "cpu_time_display": "01:21.51",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 11.613959334,
+          "cpu_percent": 788.7,
+          "cpu_time_display": "01:29.96",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 12.688375375000001,
+          "cpu_percent": 876.4,
+          "cpu_time_display": "01:39.71",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 13.747874375,
+          "cpu_percent": 740.5,
+          "cpu_time_display": "01:47.65",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 14.832089042000002,
+          "cpu_percent": 896.3,
+          "cpu_time_display": "01:57.16",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 15.895938459000002,
+          "cpu_percent": 796.4,
+          "cpu_time_display": "02:05.78",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 16.950284708999998,
+          "cpu_percent": 815.4,
+          "cpu_time_display": "02:14.42",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 18.00240325,
+          "cpu_percent": 810.8,
+          "cpu_time_display": "02:23.00",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 19.065107292,
+          "cpu_percent": 837.4,
+          "cpu_time_display": "02:31.80",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 20.146786834,
+          "cpu_percent": 847.6,
+          "cpu_time_display": "02:40.83",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 21.195125542,
+          "cpu_percent": 795.4,
+          "cpu_time_display": "02:49.39",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 22.297092292,
+          "cpu_percent": 906.0,
+          "cpu_time_display": "02:58.99",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 23.431901125,
+          "cpu_percent": 713.0,
+          "cpu_time_display": "03:06.83",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 24.519131542,
+          "cpu_percent": 814.1,
+          "cpu_time_display": "03:16.05",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 25.587972292,
+          "cpu_percent": 822.4,
+          "cpu_time_display": "03:24.95",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 26.682378334,
+          "cpu_percent": 929.0,
+          "cpu_time_display": "03:34.92",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 27.775234625,
+          "cpu_percent": 834.3,
+          "cpu_time_display": "03:44.04",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 28.831753125,
+          "cpu_percent": 743.6,
+          "cpu_time_display": "03:52.15",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 29.917120917,
+          "cpu_percent": 766.0,
+          "cpu_time_display": "04:00.28",
+          "threads_display": "11/10",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 31.000813417,
+          "cpu_percent": 762.3,
+          "cpu_time_display": "04:08.54",
+          "threads_display": "10/9",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 32.072406042000004,
+          "cpu_percent": 777.8,
+          "cpu_time_display": "04:16.97",
+          "threads_display": "8/7",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 33.168825209000005,
+          "cpu_percent": 683.5,
+          "cpu_time_display": "04:24.29",
+          "threads_display": "8/7",
+          "initial_top_sample": false
+        },
+        {
+          "elapsed_seconds": 34.215862792,
+          "cpu_percent": 406.0,
+          "cpu_time_display": "04:28.73",
+          "threads_display": "2/1",
+          "initial_top_sample": false
+        }
+      ],
+      "exit_code": 0,
+      "wall_seconds": 34.573089459,
+      "user_cpu_seconds": 267.031533,
+      "system_cpu_seconds": 2.034101,
+      "total_cpu_seconds": 269.06563400000005,
+      "average_utilized_cores": 7.782516350443116,
+      "average_cpu_percent": 778.2516350443116,
+      "peak_sampled_cpu_percent": 929.0,
+      "output_sha256": "c12040617465c3142661d845df4d012d076735257dd109876179168470bf07c0",
+      "actual_workers": 10,
+      "renderer_internal_seconds": 34.5422,
+      "finished_utc": "2026-10-19T02:13:06.685155+00:00",
+      "native_activity_monitor_observations": {
+        "method": "Manually observed native Activity Monitor CPU tab during this same renderer run; process row and whole-machine chart read separately. No screenshot published.",
+        "samples": [
+          {
+            "process_cpu_percent": 821.2,
+            "process_threads": 11,
+            "machine_user_percent": 96.27,
+            "machine_system_percent": 3.64,
+            "machine_idle_percent": 0.1
+          },
+          {
+            "process_cpu_percent": 811.5,
+            "process_threads": 11,
+            "machine_user_percent": 92.86,
+            "machine_system_percent": 7.14,
+            "machine_idle_percent": 0.0
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 # 3D Raytracer (from scratch)
 
-I wrote the original rendering experiments by hand to understand the geometry behind turning a 3D surface into an image. The vector operations, triangle intersections, camera rotations, and lighting calculations are implemented directly so that the mathematics remains visible.
+I built this project to understand the geometry behind turning a 3D surface into an image. I wrote the original Python, C++, and C programs by hand, including the vector operations, triangle intersections, camera rotations, lighting calculations, and threading experiments. I wanted to understand the mathematics by implementing it myself.
 
-This repository keeps those experiments alongside a small, corrected C++17 demonstration. It traces one ray per pixel through a triangle mesh and shades the nearest triangle with a single light. It is an exploration of rendering geometry, with rough edges preserved in the historical examples.
+I’m sharing those original experiments alongside a small, corrected C++17 demonstration. The renderer traces one ray per pixel through a triangle mesh and shades the nearest triangle with a single light. My original implementations and mathematical comments are preserved in `experiments/`; the runnable demonstration includes later correctness and portability fixes.
 
 <img src="docs/images/swirl-cover.png" alt="High-resolution swirl surface rendered by the maintained demonstration" width="960">
 
@@ -45,21 +45,21 @@ The camera spans 4.5×2.25 world units, starts at distance 3, and rotates by 30�
 
 ## The geometry
 
-The surface is sampled on a grid and each cell becomes two triangles. For a triangle with vertices $A,B,C$, its unit normal is
+I represented each surface by sampling it on a grid and splitting every cell into two triangles. I computed a face normal from the cross product of its edges. For a triangle with vertices $A,B,C$, the unit normal is
 
 $$
 \hat{n}=\frac{(B-A)\times(C-A)}{\lVert(B-A)\times(C-A)\rVert}.
 $$
 
-Each pixel supplies an origin $P$ on a camera plane. All rays share direction $D$, making this an **orthographic camera**. Substituting the ray $I=P+tD$ into the triangle's plane equation gives
+In my orthographic renderers, I placed each pixel at an origin $P$ on a camera plane and gave all rays the same direction $D$. Substituting the ray $I=P+tD$ into the triangle's plane equation gives
 
 $$
 t=\frac{\hat{n}\cdot(A-P)}{\hat{n}\cdot D}.
 $$
 
-A valid hit needs a nonparallel ray, $t\geq0$, and an intersection inside the triangle. The inside test uses the sign of the cross product along each edge, projected onto the normal. The nearest valid $t$ determines which surface is visible.
+A valid hit needs a nonparallel ray, $t\geq0$, and an intersection inside the triangle. I checked triangle membership using the sign of the cross product along each edge, projected onto the normal. The intended visibility rule is to select the nearest valid $t$; the maintained version fixes a missing minimum-distance update in my original C++ loop.
 
-Brightness is computed once per triangle, at its centroid $G=(A+B+C)/3$:
+I used a dot product between the face normal and the direction toward the light to shade each triangle. In the threaded C++ version, I evaluated brightness at the triangle centroid $G=(A+B+C)/3$:
 
 $$
 b=\max\left(0,\hat{n}\cdot\frac{L-G}{\lVert L-G\rVert}\right).
@@ -67,7 +67,7 @@ $$
 
 This gives flat diffuse shading: brightness depends on how the face points toward the light. There are no shadows, reflections, recursive light transport, distance attenuation, or smooth interpolated normals.
 
-The camera plane is rotated using Rodrigues' rotation formula. The [mathematical notes](docs/mathematics.md) derive the intersection, edge tests, rotation, and numerical safeguards in more detail.
+I rotated the camera plane using Rodrigues' rotation formula. The [mathematical notes](docs/mathematics.md) derive the intersection, edge tests, rotation, and numerical safeguards in more detail.
 
 ![Early Python development with a notebook on an airplane](docs/images/early-python-on-a-plane.jpg)
 
@@ -85,7 +85,7 @@ The camera plane is rotated using Rodrigues' rotation formula. The [mathematical
 | Nearest visible face and pixel work | `write_pixel_data`, `render` |
 | Options and PGM output | `src/main.cpp` |
 
-The maintained implementation derives from [`experiments/multithread/render.cpp`](experiments/multithread/render.cpp). It keeps the direct plane-intersection and edge-test approach rather than replacing it with a graphics library. Pixel work is independent and distributed across workers. Every pixel still checks every triangle, so the cost grows with **pixels × triangles**; increasing both image dimensions and both mesh dimensions multiplies the work quickly.
+My threaded C++ renderer is preserved in [`experiments/multithread/render.cpp`](experiments/multithread/render.cpp). I wrote the plane-intersection and edge-test calculations directly, and split independent pixel work between worker threads. The maintained demonstration keeps that approach. Every pixel still checks every triangle, so the cost grows with **pixels × triangles**; increasing both image dimensions and both mesh dimensions multiplies the work quickly.
 
 ## Experiments and results
 
@@ -93,7 +93,7 @@ The maintained implementation derives from [`experiments/multithread/render.cpp`
 
 *Recovered images from the original project, assembled into a gallery for this README. Their exact mesh, camera, and image-generation settings have not been verified; they are not correctness references for the maintained demonstration. The [original files](experiments/images/) are preserved separately.*
 
-The preserved files show several directions of exploration: Python triangle tests and plotting, camera and focal-point examples, C++ surface rendering, multithreading, rotating surfaces, terminal animation, and SDL display. They establish what was implemented, but do not establish a reliable chronology or controlled performance comparison.
+I wrote Python experiments to inspect triangles, normals, rotation, and camera placement. I also wrote C++ surface renderers, multithreading experiments, rotating and terminal animations, and an SDL display experiment. The preserved files are snapshots of that work; their filenames alone do not establish the order of every experiment.
 
 The swirl function and its original approximate constants remain in the maintained scene. The historical variants also contain different surfaces and partial-sphere parameterizations. Names such as `render_sphere.cpp` should not be read as proof that they render a complete sphere. See the [experiment guide](docs/experiments.md) for dependencies and known issues.
 
@@ -107,7 +107,7 @@ The calculations connect vector geometry directly to visibility and shading. Det
 
 ## Single thread versus multiple threads
 
-The original `multithread/` folder explores splitting pixel work between CPU threads. In my original testing of the bell-shaped surface, ten threads gave roughly a **6–7× speedup** at relatively high image resolution and triangle counts.
+I added multithreading by splitting the pixels between CPU threads. In my original testing of the bell-shaped surface, ten threads gave roughly a **6–7× speedup** at relatively high image resolution and triangle counts. I also remember Activity Monitor’s CPU chart becoming fully saturated during those runs.
 
 ![Single-thread and eight-thread timing of the original cosine-bell renderer](docs/images/bell-thread-scaling.png)
 
@@ -126,6 +126,8 @@ These are medians of five timed runs per configuration after a warmup, with work
 
 The [performance notes and raw measurements](docs/performance.md) include another test of the original swirl renderer and explain why the unused result in the original array-summing `threading.cpp` makes that small test unreliable as an optimized benchmark.
 
+A sustained 10-worker render was also checked in Activity Monitor during this publication update. The machine reached **0% idle**, and the renderer peaked at **929% sampled CPU usage**. Actual CPU use was measured separately from the worker count; see the [CPU utilization record](docs/cpu-usage.md) for the command and samples.
+
 ## Verification and next steps
 
 The regression suite exercises intersections, visibility order, boundary hits, rotation, finite shading, and complete rendering across worker counts. The [verification record](docs/verification.md) distinguishes executed checks from historical examples that were only syntax-checked.
@@ -136,7 +138,7 @@ No license has been selected for this repository.
 
 ## One more recovered artifact: `banana.c`
 
-The original folder also contains a tiny C program whose source is shaped like a banana. It prints a rotating banana using ASCII characters—a separate parametric rendering experiment from the triangle raycaster above.
+I took inspiration from Andy Sloane’s famous [`donut.c`](https://www.a1k0n.net/2011/07/20/donut-math.html) and wrote my own rotating ASCII banana in C. I also arranged the source itself into a banana shape. This is a separate parametric rendering experiment from the triangle raycaster above.
 
 ![Rotating ASCII banana captured from the original C program](docs/images/banana-terminal.gif)
 

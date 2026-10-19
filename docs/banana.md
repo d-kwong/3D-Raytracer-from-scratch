@@ -1,5 +1,7 @@
 # The rotating ASCII banana
 
+I took inspiration from Andy Sloane’s famous [`donut.c`](https://www.a1k0n.net/2011/07/20/donut-math.html) and wrote my own rotating banana in C, arranging its source into a banana shape. Sloane’s article explains the mathematics behind his rotating ASCII donut; it is credited here as the inspiration for this experiment.
+
 ![One cycle of the original banana.c terminal output](images/banana-terminal.gif)
 
 This GIF was generated during the publication update by compiling and running the

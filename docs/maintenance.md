@@ -25,3 +25,5 @@ No open-source license was selected. Public availability does not itself grant a
 ## Visuals and performance update
 
 A subsequent AI-assisted maintenance update adds a higher-resolution cover, a mesh-density comparison, an original-image gallery, repeated single-thread/multithread measurements, and a GIF captured from the unchanged `banana.c` program. The reproduction scripts and benchmark records were added during this update. These are new outputs and measurements; the original experiments and their source code remain intact.
+
+The author subsequently confirmed that the original runs saturated Activity Monitor’s CPU chart and that `banana.c` was inspired by Andy Sloane’s `donut.c`. The README now uses first-person wording for the author’s original implementations and confirmed experiences, credits that inspiration, and keeps the later maintained demonstration and measurements distinct. A sustained-render CPU profile was added without changing the renderer or the archived source.
