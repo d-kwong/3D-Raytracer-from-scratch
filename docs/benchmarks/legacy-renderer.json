@@ -1,0 +1,137 @@
+{
+  "started_utc": "2026-10-19T01:52:15.910032+00:00",
+  "machine": {
+    "os": "Darwin",
+    "os_version": "27.0.1",
+    "architecture": "arm64",
+    "logical_cpus": 10,
+    "cpu": "Apple M4",
+    "physical_cpus": 10,
+    "performance_cores": 4,
+    "efficiency_cores": 6,
+    "hardware_metadata_note": "CPU model/core split read separately with sysctl; sandboxed measurement process could not read these keys."
+  },
+  "compiler_flags": "-O2 -std=c++17 -pthread",
+  "source": "experiments/multithread/render.cpp",
+  "width": 200,
+  "height": 100,
+  "grid": 20,
+  "method": {
+    "rounds": 5,
+    "warmups_per_configuration": 1,
+    "shuffle_seed": 20261019,
+    "timing": "subprocess start through exit including original text pixel output",
+    "substitutions": [
+      "paint_in_terminal = false",
+      "multithread = true / false"
+    ],
+    "note": "Temporary builds; archive unchanged. Image-mode paint_in_terminal=false implies font_adjust=1.0 and height100. This retains known geometry and thread-remainder defects."
+  },
+  "runs": [
+    {
+      "round": 0,
+      "warmup": true,
+      "configuration": "single",
+      "wall_seconds": 9.631866958,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "configuration": "multi",
+      "wall_seconds": 5.593875625000001,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "configuration": "multi",
+      "wall_seconds": 4.995418208999997,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "configuration": "single",
+      "wall_seconds": 9.480831375000001,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "configuration": "multi",
+      "wall_seconds": 4.474678083999997,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "configuration": "single",
+      "wall_seconds": 9.605625875000001,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "configuration": "single",
+      "wall_seconds": 9.484809374999998,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "configuration": "multi",
+      "wall_seconds": 5.562485374999994,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "configuration": "single",
+      "wall_seconds": 9.658682208000002,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "configuration": "multi",
+      "wall_seconds": 4.50355325000001,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "configuration": "single",
+      "wall_seconds": 9.563503749999995,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "configuration": "multi",
+      "wall_seconds": 5.005814290999993,
+      "output_sha256": "19dcc8593a1f841310f5a5ca3cedbbfa0b5b22b128aa6fe9cf4ca7b2b828e5fc"
+    }
+  ],
+  "summary": [
+    {
+      "configuration": "single",
+      "median_seconds": 9.563503749999995,
+      "min_seconds": 9.480831375000001,
+      "max_seconds": 9.658682208000002
+    },
+    {
+      "configuration": "multi",
+      "median_seconds": 4.995418208999997,
+      "min_seconds": 4.474678083999997,
+      "max_seconds": 5.562485374999994,
+      "speedup_vs_single": 1.9144550766079818
+    }
+  ],
+  "all_images_identical": true,
+  "finished_utc": "2026-10-19T01:53:45.172539+00:00",
+  "pixel_count": 20000,
+  "multi_workers": 10,
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "source_sha256": "f2bfa8355f2001d3a7168a56f6a06d70b46815bb66af49260c467b217c819fb8"
+}

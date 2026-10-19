@@ -8,7 +8,7 @@ This record separates the maintained demonstration from the preserved experiment
 
 The 160×80 demonstration was executed with one worker and its PGM and PNG were visually inspected. Output bytes range from 0 to 254. Single-worker and six-worker outputs match exactly at 31×17 pixels with an 8×8 grid. These are correctness checks, not performance benchmarks.
 
-Reproduction command for the new README image:
+Reproduction command for the small quick-start image (retained as `docs/images/swirl-demo.png`):
 
 ```sh
 make
@@ -36,3 +36,26 @@ All 12 historical C++ files and `banana.c` passed compiler syntax checks, and al
 The publication environment has NumPy and SDL2. Matplotlib and OpenCV are absent from the bundled Python environment, so graphical Python and video pipelines are not claimed as reproduced. Original images and the PDF were visually inspected. The two retained MPEG-4 videos passed container and metadata inspection. Sampled frames from `hat_15_40.mp4` show a changing grayscale hat. Sampled frames from `test.mp4` are uniformly dark green; this artifact is retained as an original test file, not a successful rendering result. Exact generation settings for the original media have not been verified.
 
 Historical runtime estimates have not been validated as benchmarks. No expensive animation runs or large experiments are required for the maintained demonstration.
+
+## README visuals
+
+The higher-resolution cover and mesh comparison were generated in a later publication update. The cover is a fresh 1600×800 render with an 80×80 mesh (12,800 triangles), not an enlargement of the quick-start image. Camera, light, height function, and renderer are unchanged. The three mesh-comparison panels are fresh 480×240 renders with 8×8, 20×20, and 80×80 cells. The original-output gallery only fits the preserved images into labeled panels; it does not regenerate or reconstruct them.
+
+```sh
+make
+python3 -m venv .venv
+.venv/bin/python -m pip install Pillow
+.venv/bin/python scripts/prepare_visuals.py
+```
+
+`prepare_visuals.py` runs the cover and comparison renders, then creates their PNGs and the original-output gallery. To recompose the figures without repeating existing renders, use `--reuse`. Pillow and the font used for panel labels are optional figure-preparation dependencies, not renderer dependencies. The published cover used 10 automatically selected workers; it took about 20 seconds in this session, which is an observation rather than a benchmark. To render just the cover's pixel data:
+
+```sh
+./build/raytracer --width 1600 --height 800 --grid 80 --threads 0 --output build/swirl-cover.pgm
+```
+
+The [banana recording](banana.md) captures actual output from the unmodified C program. The [performance record](performance.md) contains repeated timed renders and image-equivalence checks. These new figures and measurements are distinct from the recovered original outputs.
+
+The update passed `make test`. The cover PNG was checked pixel-for-pixel against its PGM, and the looping banana GIF was checked for 63 frames with 100 ms per frame. Benchmark medians were independently recalculated from the raw samples, and image hashes matched within each measured workload. The preserved experiment sources have no changes; the original source folder still matches its 77-file hash manifest.
+
+Following the author's clarification about the original bell-shaped scene, a separate investigation exercised the archived `og_hat.cpp` with one and eight workers. One calibration session and two repeated sessions produced 20 matching-output runs in total. Its smaller unoptimized workload measured 3.92× speedup; the larger optimized workload measured 2.28×. These tests did not reproduce the author's remembered 6–7× result. Exact settings, bounds, output hashes, and the original internal timer are recorded in [the bell investigation](bell-performance.md).

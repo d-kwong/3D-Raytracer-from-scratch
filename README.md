@@ -4,9 +4,9 @@ I wrote the original rendering experiments by hand to understand the geometry be
 
 This repository keeps those experiments alongside a small, corrected C++17 demonstration. It traces one ray per pixel through a triangle mesh and shades the nearest triangle with a single light. It is an exploration of rendering geometry, with rough edges preserved in the historical examples.
 
-<img src="docs/images/swirl-demo.png" alt="Swirl surface rendered by the maintained demonstration" width="480">
+<img src="docs/images/swirl-cover.png" alt="High-resolution swirl surface rendered by the maintained demonstration" width="960">
 
-*New reproduction from the maintained demonstration: 160×80 pixels, 20×20 mesh cells (800 triangles), one worker. The exact command appears below.*
+*New render from the maintained demonstration: 1600×800 pixels, 80×80 mesh cells (12,800 triangles). The small quick start below uses the same surface and camera; [figure reproduction commands](docs/verification.md#readme-visuals) include this larger render.*
 
 ## Run it
 
@@ -89,9 +89,9 @@ The maintained implementation derives from [`experiments/multithread/render.cpp`
 
 ## Experiments and results
 
-![Original swirl rendering](experiments/images/swirl.png)
+![Three preserved original outputs: a cosine hat, sphere-like surface, and swirl](docs/images/original-gallery.png)
 
-*Preserved original output. Its exact mesh, camera, and image-generation settings have not been verified; it is not a reference image for the maintained demonstration.*
+*Recovered images from the original project, assembled into a gallery for this README. Their exact mesh, camera, and image-generation settings have not been verified; they are not correctness references for the maintained demonstration. The [original files](experiments/images/) are preserved separately.*
 
 The preserved files show several directions of exploration: Python triangle tests and plotting, camera and focal-point examples, C++ surface rendering, multithreading, rotating surfaces, terminal animation, and SDL display. They establish what was implemented, but do not establish a reliable chronology or controlled performance comparison.
 
@@ -101,6 +101,31 @@ The maintained version corrects nearest-hit selection, shared-edge rejection, nu
 
 The calculations connect vector geometry directly to visibility and shading. Details such as boundary inclusion and updating the nearest distance affect the resulting image as much as the surface equation does.
 
+![The same swirl rendered with 128, 800, and 12800 triangles](docs/images/mesh-comparison.png)
+
+*New comparison: each panel has 480×240 pixels and the same camera and light. Increasing the mesh density resolves the swirl while keeping its flat triangular shading visible. The angular surface formula has no unique continuous limit at the origin, so the changing center is a limitation of the original function, not proof of convergence to a smooth surface.*
+
+## Single thread versus multiple threads
+
+The original `multithread/` folder explores splitting pixel work between CPU threads. In my original testing of the bell-shaped surface, eight threads gave roughly a **6–7× speedup** at relatively high image resolution and triangle counts.
+
+![Single-thread and eight-thread timing of the original cosine-bell renderer](docs/images/bell-thread-scaling.png)
+
+*New recheck of the preserved bell renderer: 3.92× with an unoptimized build and 2.28× with an optimized build on this Apple M4. The panels use different workloads; compare worker counts within each panel. Every output matched its single-thread counterpart. These runs did not reproduce the earlier 6–7× result; the original build and exact workload remain unknown. The [bell investigation](docs/bell-performance.md) records the settings, raw trials, and a newly rendered bell image.*
+
+The following separate worker-count sweep uses the maintained renderer on the same Apple M4, with four performance cores and six efficiency cores:
+
+![Measured rendering time versus worker count for two image sizes](docs/images/thread-scaling.png)
+
+| Render | One worker | Ten workers (automatic) | Speedup |
+| --- | ---: | ---: | ---: |
+| 160×80 pixels, 800 triangles | 54.0 ms | 16.8 ms | 3.22× |
+| 640×320 pixels, 3,200 triangles | 3.168 s | 0.882 s | 3.59× |
+
+These are medians of five timed runs per configuration after a warmup, with worker counts interleaved in shuffled order. Timings include process startup, scene construction, rendering, and writing the image. Every output hash matched across worker counts. This measures one machine and one session; it does not establish the old hardware estimates or guarantee the same speedup elsewhere.
+
+The [performance notes and raw measurements](docs/performance.md) include another test of the original swirl renderer and explain why the unused result in the original array-summing `threading.cpp` makes that small test unreliable as an optimized benchmark.
+
 ## Verification and next steps
 
 The regression suite exercises intersections, visibility order, boundary hits, rotation, finite shading, and complete rendering across worker counts. The [verification record](docs/verification.md) distinguishes executed checks from historical examples that were only syntax-checked.
@@ -108,3 +133,20 @@ The regression suite exercises intersections, visibility order, boundary hits, r
 Useful extensions would be perspective projection, a spatial acceleration structure, smoother normals, and a clearer interface for selecting scenes. These are future work. The current demonstration deliberately keeps the geometry small enough to follow directly.
 
 No license has been selected for this repository.
+
+## One more recovered artifact: `banana.c`
+
+The original folder also contains a tiny C program whose source is shaped like a banana. It prints a rotating banana using ASCII characters—a separate parametric rendering experiment from the triangle raycaster above.
+
+![Rotating ASCII banana captured from the original C program](docs/images/banana-terminal.gif)
+
+*New recording of the unchanged [original program](experiments/banana.c): 63 frames, one full turn. The program prints scrolling blocks; this GIF places those actual character blocks in a fixed viewport with a terminal-style background and yellow text.*
+
+```sh
+mkdir -p build
+cc -O2 -std=gnu11 experiments/banana.c -lm -o build/banana
+./build/banana
+# Press Ctrl-C to stop.
+```
+
+The [capture notes and script](docs/banana.md) explain how to reproduce the GIF without reimplementing its geometry.

@@ -21,3 +21,7 @@ The publication copy omits compiled binaries, editor configuration, `.DS_Store`,
 At the author's explicit request, a supplied personal photograph is included as a resized JPEG with metadata removed and the personal path visible in the photographed editor redacted. The author confirmed that it shows work on the earliest Python files on a plane and notebook concepts covering 3D rotation matrices, point-in-triangle testing, and line–plane intersection. The caption does not infer a date, route, or location or transcribe unreadable equations.
 
 No open-source license was selected. Public availability does not itself grant an open-source license. The original author can choose terms later.
+
+## Visuals and performance update
+
+A subsequent AI-assisted maintenance update adds a higher-resolution cover, a mesh-density comparison, an original-image gallery, repeated single-thread/multithread measurements, and a GIF captured from the unchanged `banana.c` program. The reproduction scripts and benchmark records were added during this update. These are new outputs and measurements; the original experiments and their source code remain intact.
