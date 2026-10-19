@@ -7,7 +7,7 @@ These notes describe the maintained C++ demonstration. The historical files pres
 The swirl is a height field $z=f(x,y)$ on $[-1.5,1.5]^2$. The retained formula is
 
 $$
-f(x,y)=0.2\sin\left(3\pi_0\sqrt{x^2+y^2}+3\operatorname{atan2}(y,x)\right)e_0^{-(x^2+y^2)},
+f(x,y)=0.2\sin\left(3\pi_0\sqrt{x^2+y^2}+3\mathrm{atan2}(y,x)\right)e_0^{-(x^2+y^2)},
 \qquad \pi_0=3.141,\quad e_0=2.714.
 $$
 
