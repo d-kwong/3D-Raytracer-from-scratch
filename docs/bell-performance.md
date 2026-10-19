@@ -1,6 +1,6 @@
 # Revisiting the original bell-surface timing
 
-The remembered 6–7× improvement came from a 3D bell visualization with substantial pixel and triangle counts. That recollection motivated this separate investigation of `experiments/multithread/og_hat.cpp`, rather than assuming the swirl demo has the same performance.
+The remembered 6–7× improvement came from a 3D bell visualization with substantial pixel and triangle counts. Derek subsequently clarified that the historical test used **ten threads**. That recollection motivated this separate investigation of `experiments/multithread/og_hat.cpp`. The completed investigation retained that file's eight-worker branch, so it does not reproduce the clarified ten-thread configuration.
 
 The archived surface is a **cosine bell**, `cos(x*3.141/2) * cos(y*3.141/2)`, on `[-1,1]²`, rather than a Gaussian. The original camera, light, triangle construction, per-pixel intersection loops and fixed eight-worker partition are retained. Only temporary copies are edited: the single/multithread switch, pixel width and mesh subdivision count. Terminal display already defaults to false. Both tested pixel counts divide evenly among eight workers, avoiding the archive's remainder-handling defect for these particular runs.
 
@@ -29,7 +29,7 @@ The two build modes use **different workloads**. Compare one worker against eigh
 
 Every output matched across the two worker settings and all eight runs within each repeated session (two warmups plus six measured trials). The calibration also produced identical outputs across both optimization settings. The larger optimized case showed substantial multithread runtime variation, visible in the chart's min–max bars.
 
-**These attempts did not reproduce 6–7× on the current M4.** They establish measurable improvements for the original bell code under the recorded conditions. The remembered historical result remains unverified because its precise workload, compiler options, hardware and timing conditions are unavailable. No allocator changes, core-affinity changes or parameter search was used to pursue a preferred ratio.
+**These eight-worker measurements are a different configuration from the remembered ten-thread result.** They establish measurable improvements for the original bell code under the recorded conditions. The precise historical workload, compiler options and timing conditions remain unavailable. No ten-worker bell measurement was performed in this investigation, and the eight-worker results cannot establish its ten-worker speedup. No allocator changes, core-affinity changes or parameter search was used to pursue a preferred ratio.
 
 ![Newly generated cosine-bell output from the original renderer](images/bell-demo.png)
 

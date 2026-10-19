@@ -4,9 +4,9 @@ The renderer divides pixels among CPU workers. Each pixel still tests every tria
 
 ## Original testing
 
-Derek recalls that **eight threads gave roughly a 6–7× speedup in the original testing**, specifically on the bell-shaped visualization at relatively high resolution and triangle counts. This is the author's account of the earlier project, preserved alongside the new measurements. Exact dimensions, mesh size, compiler flags, timing boundaries, and timing logs for that comparison have not been recovered. The new measurements below use explicitly recorded settings and do not reconstruct those original conditions. Differences between sessions cannot be attributed to a particular cause from these records alone.
+Derek recalls that **ten threads gave roughly a 6–7× speedup in the original testing**, specifically on the bell-shaped visualization at relatively high resolution and triangle counts. He clarified the historical thread count after the publication benchmarks were completed. This is the author's account of the earlier project, preserved alongside the new measurements. Exact dimensions, mesh size, compiler flags, timing boundaries, and timing logs for that comparison have not been recovered. The new measurements below use explicitly recorded settings and do not reconstruct those original conditions. Differences between sessions cannot be attributed to a particular cause from these records alone.
 
-The [dedicated bell investigation](bell-performance.md) rechecks `og_hat.cpp` with its original fixed eight-worker partition, using both unoptimized and optimized builds. It records the attempted reconstruction separately from the maintained swirl measurements below.
+The [dedicated bell investigation](bell-performance.md) rechecks `og_hat.cpp` with its original fixed eight-worker partition, using both unoptimized and optimized builds. Those eight-worker runs differ from the recalled ten-thread configuration. Their recorded settings and measurements are preserved separately from the maintained swirl measurements below.
 
 ![End-to-end runtime by worker count, with min–max whiskers](images/thread-scaling.png)
 
