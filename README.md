@@ -109,13 +109,13 @@ The calculations connect vector geometry directly to visibility and shading. Det
 
 I added multithreading by splitting the pixels between CPU threads. In my original testing of the bell-shaped surface, ten threads gave roughly a **6–7× speedup** at relatively high image resolution and triangle counts. I also remember Activity Monitor’s CPU chart becoming fully saturated during those runs.
 
-![Single-thread and eight-thread timing of the original cosine-bell renderer](docs/images/bell-thread-scaling.png)
+![Single-thread and eight-thread timing of the original cosine-bell renderer](docs/images/bell-compute-scaling.png)
 
 *New computation-only recheck of the preserved bell renderer's eight-worker branch: 4.23× with an unoptimized build and 1.81× with an optimized build on this Apple M4. The panels use different workloads; compare worker counts within each panel. Every output matched its single-thread counterpart. This eight-worker configuration differs from the ten-thread historical test; the original build and exact workload remain unknown. The [bell investigation](docs/bell-performance.md) records the settings, raw trials, and a newly rendered bell image.*
 
 The following separate worker-count sweep uses the maintained renderer on the same Apple M4, with four performance cores and six efficiency cores:
 
-![Rendering-computation time versus worker count for two image sizes](docs/images/thread-scaling.png)
+![Rendering-computation time versus worker count for two image sizes](docs/images/thread-compute-scaling.png)
 
 | Render | One worker | Ten workers (automatic) | Speedup |
 | --- | ---: | ---: | ---: |

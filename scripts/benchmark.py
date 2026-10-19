@@ -220,7 +220,7 @@ def chart(input_path, output_path):
                          "axes.labelcolor": "#202c36", "xtick.color": "#56616a",
                          "ytick.color": "#202c36"}):
         fig, axes = plt.subplots(1, 2, figsize=(13.5, 6.3))
-        fig.suptitle("More workers, same image", fontsize=25, x=0.06, ha="left", y=0.98)
+        fig.suptitle("Thread scaling: computation only", fontsize=25, x=0.06, ha="left", y=0.98)
         fig.text(0.06, 0.88, f"{hardware.get('cpu') or hardware['architecture']} · {hardware['logical_cpus']} CPU cores · median of {result['method']['rounds']} runs", color="#56616a", fontsize=12)
         for axis, workload in zip(axes, result["workloads"]):
             rows = workload["summary"]
@@ -260,7 +260,7 @@ def main():
     parser.add_argument("--build-command", default="make -B CXX=c++ CXXFLAGS='-O2 -std=c++17 -Wall -Wextra -Wpedantic'")
     parser.add_argument("--chart", type=Path, help="Create chart from existing JSON; no measurements")
     parser.add_argument("--legacy", action="store_true", help="Benchmark temporary single/multi builds of the archived renderer")
-    parser.add_argument("--chart-output", type=Path, default=ROOT / "docs/images/thread-scaling.png")
+    parser.add_argument("--chart-output", type=Path, default=ROOT / "docs/images/thread-compute-scaling.png")
     args = parser.parse_args()
     if args.output is None:
         args.output = ROOT / "docs/benchmarks" / ("legacy-compute.json" if args.legacy else "thread-compute.json")

@@ -18,7 +18,7 @@ The two build modes use **different workloads**. Compare one worker against eigh
 
 ## Repeated results
 
-![Original cosine-bell renderer timing in separate optimized and unoptimized workloads](images/bell-thread-scaling.png)
+![Original cosine-bell renderer timing in separate optimized and unoptimized workloads](images/bell-compute-scaling.png)
 
 | Build and workload | One worker: median computation (range) | Eight workers: median computation (range) | Speedup |
 | --- | ---: | ---: | ---: |

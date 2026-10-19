@@ -32,7 +32,7 @@ def plot_results(input_path, output_path):
     with plt.rc_context({"font.family": "DejaVu Sans", "font.size": 11, "axes.spines.top": False,
                          "axes.spines.right": False, "figure.facecolor": "#f5f3ee", "axes.facecolor": "#f5f3ee"}):
         fig, axes = plt.subplots(1, 2, figsize=(12, 5.4))
-        fig.suptitle("Revisiting the original cosine bell", x=0.07, y=0.98, ha="left", fontsize=23)
+        fig.suptitle("Original bell: computation only", x=0.07, y=0.98, ha="left", fontsize=23)
         for axis, session in zip(axes, sessions):
             rows = session["summary"]
             values = [r["compute_seconds"]["median"] for r in rows]
@@ -68,7 +68,7 @@ def main():
     parser.add_argument("--optimizations", nargs="+", choices=("O0", "O2"), default=["O0", "O2"])
     parser.add_argument("--preview", type=Path, help="Save the actual final output as a binary grayscale PGM")
     parser.add_argument("--chart", action="store_true", help="Create chart from existing JSON; requires Matplotlib")
-    parser.add_argument("--chart-output", type=Path, default=ROOT / "docs/images/bell-thread-scaling.png")
+    parser.add_argument("--chart-output", type=Path, default=ROOT / "docs/images/bell-compute-scaling.png")
     parser.add_argument("--output", type=Path, default=ROOT / "docs/benchmarks/bell-compute.json")
     args = parser.parse_args()
     if args.chart:

@@ -8,7 +8,7 @@ In the original bell-shaped visualization, Derek recalls a roughly **6–7× spe
 
 ## Maintained renderer
 
-![Rendering-computation time by worker count, with min–max whiskers](images/thread-scaling.png)
+![Rendering-computation time by worker count, with min–max whiskers](images/thread-compute-scaling.png)
 
 These fresh measurements use an Apple M4 (four performance cores, six efficiency cores), arm64, macOS 27.0.1; Apple clang 21.0.0 with `-O2 -std=c++17 -Wall -Wextra -Wpedantic -pthread`.
 
