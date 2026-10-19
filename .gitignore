@@ -1,0 +1,10 @@
+/build/
+/render.pgm
+/output.txt
+*.o
+*.dSYM/
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+.vscode/
