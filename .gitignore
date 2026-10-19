@@ -1,6 +1,7 @@
 /build/
-/render.pgm
-/output.txt
+*.pgm
+output.txt
+/experiments/Triangles/video_frames/
 *.o
 *.dSYM/
 __pycache__/
