@@ -1,5 +1,7 @@
 """Integration tests; Python standard library only, all output in a temp folder."""
 from pathlib import Path
+import math
+import re
 import subprocess
 import sys
 import tempfile
@@ -16,6 +18,13 @@ class DemoCLI(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             result = self.run_demo(cwd=folder)
             self.assertEqual(result.returncode, 0, result.stderr)
+            compute = re.findall(rb"^render computation: ([\d.eE+-]+) seconds$", result.stderr, re.MULTILINE)
+            self.assertEqual(len(compute), 1)
+            seconds = float(compute[0])
+            self.assertTrue(math.isfinite(seconds) and seconds >= 0)
+            total = re.search(rb" in ([\d.eE+-]+) seconds", result.stderr)
+            self.assertIsNotNone(total)
+            self.assertLessEqual(seconds, float(total[1]) + 1e-5)
             data = (Path(folder) / "render.pgm").read_bytes()
             header = b"P5\n160 80\n255\n"
             self.assertTrue(data.startswith(header))

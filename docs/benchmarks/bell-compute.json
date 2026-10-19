@@ -1,0 +1,370 @@
+{
+  "metric": "compute_seconds",
+  "source": "experiments/multithread/og_hat.cpp",
+  "source_sha256": "d54fe49335a6921dfc23e3109868b8ffb3eb595ae73a2b656e3dd2de80f25409",
+  "machine": {
+    "os": "Darwin",
+    "os_version": "27.0.1",
+    "architecture": "arm64",
+    "logical_cpus": 10,
+    "cpu": "Apple M4",
+    "physical_cpus": 10,
+    "performance_cores": 4,
+    "efficiency_cores": 6
+  },
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "method": {
+    "flags": "-O0 / -O2 -std=c++17 -pthread",
+    "workers": [
+      1,
+      8
+    ],
+    "temporary_substitutions_only": [
+      "multithread",
+      "n_pixels_w",
+      "n_faces"
+    ],
+    "compute_timer": "steady_clock immediately before dispatch if/else after pixel_colors allocation, stopped immediately after dispatch before output loop",
+    "timer_start_injection": "    auto publication_compute_start = std::chrono::steady_clock::now();\n",
+    "timer_stop_injection": "    auto publication_compute_stop = std::chrono::steady_clock::now();\n    double publication_compute_seconds = std::chrono::duration<double>(publication_compute_stop-publication_compute_start).count();\n    std::cerr.precision(17);\n    std::cerr << \"render computation: \" << publication_compute_seconds << \" seconds\\n\";\n",
+    "scene": "original cosine bell, camera and light unchanged; terminal display remains false",
+    "wall_timer": "diagnostic ONLY: perf_counter subprocess launch through exit; output hashing excluded; not used for speedup",
+    "internal_timer": "diagnostic ONLY: original processing time printed by og_hat.cpp; excludes scene construction, includes pixel text writing; not used for speedup",
+    "warmups_per_measured_configuration": 1,
+    "order": "paired single/multi runs; order reversed on alternate rounds; optimization order reversed on alternate rounds"
+  },
+  "sessions": [
+    {
+      "calibration": false,
+      "started_utc": "2026-10-19T02:21:30.113464+00:00",
+      "machine": {
+        "os": "Darwin",
+        "os_version": "27.0.1",
+        "architecture": "arm64",
+        "logical_cpus": 10,
+        "cpu": "Apple M4",
+        "physical_cpus": 10,
+        "performance_cores": 4,
+        "efficiency_cores": 6
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+      "source_sha256": "d54fe49335a6921dfc23e3109868b8ffb3eb595ae73a2b656e3dd2de80f25409",
+      "optimization_settings": [
+        "O0"
+      ],
+      "measured_rounds": 3,
+      "width": 120,
+      "height": 60,
+      "grid": 12,
+      "triangles": 288,
+      "temporary_builds": [
+        {
+          "optimization": "O0",
+          "workers": 1,
+          "instrumented_source_sha256": "f541c26214e5a453aa24c46782cd7a0096bf30766dd571f7e0897b5cf5dcbe73",
+          "binary_sha256": "f31f90c89e5005a21fb4b8b7026a509346a4e39f8a6e9e1d8630c7023d876d9f"
+        },
+        {
+          "optimization": "O0",
+          "workers": 8,
+          "instrumented_source_sha256": "702b18e824061f55700b8d4b34517714ecdaebe5949bbd0a3b7846bad794f9fe",
+          "binary_sha256": "750c5077c05de220963e71456a7addac0f8aecd8039fd8d0f8e41888cc62642b"
+        }
+      ],
+      "runs": [
+        {
+          "round": 0,
+          "warmup": true,
+          "optimization": "O0",
+          "workers": 1,
+          "compute_seconds": 19.404099333,
+          "wall_seconds": 19.528971166999998,
+          "internal_seconds": 19.4052,
+          "output_sha256": "0ca90d2f8647a941e5ac504d721df10b569f16d98695e8b167170736b91993dc"
+        },
+        {
+          "round": 0,
+          "warmup": true,
+          "optimization": "O0",
+          "workers": 8,
+          "compute_seconds": 4.42174225,
+          "wall_seconds": 4.5144590409999985,
+          "internal_seconds": 4.42303,
+          "output_sha256": "0ca90d2f8647a941e5ac504d721df10b569f16d98695e8b167170736b91993dc"
+        },
+        {
+          "round": 1,
+          "warmup": false,
+          "optimization": "O0",
+          "workers": 8,
+          "compute_seconds": 4.757509333,
+          "wall_seconds": 4.816127292000001,
+          "internal_seconds": 4.75855,
+          "output_sha256": "0ca90d2f8647a941e5ac504d721df10b569f16d98695e8b167170736b91993dc"
+        },
+        {
+          "round": 1,
+          "warmup": false,
+          "optimization": "O0",
+          "workers": 1,
+          "compute_seconds": 19.473739083,
+          "wall_seconds": 19.528093499999997,
+          "internal_seconds": 19.4749,
+          "output_sha256": "0ca90d2f8647a941e5ac504d721df10b569f16d98695e8b167170736b91993dc"
+        },
+        {
+          "round": 2,
+          "warmup": false,
+          "optimization": "O0",
+          "workers": 1,
+          "compute_seconds": 19.302118834,
+          "wall_seconds": 19.358721957999997,
+          "internal_seconds": 19.3032,
+          "output_sha256": "0ca90d2f8647a941e5ac504d721df10b569f16d98695e8b167170736b91993dc"
+        },
+        {
+          "round": 2,
+          "warmup": false,
+          "optimization": "O0",
+          "workers": 8,
+          "compute_seconds": 4.5679115,
+          "wall_seconds": 4.622852250000008,
+          "internal_seconds": 4.56901,
+          "output_sha256": "0ca90d2f8647a941e5ac504d721df10b569f16d98695e8b167170736b91993dc"
+        },
+        {
+          "round": 3,
+          "warmup": false,
+          "optimization": "O0",
+          "workers": 8,
+          "compute_seconds": 4.529221625,
+          "wall_seconds": 4.585828208999999,
+          "internal_seconds": 4.53049,
+          "output_sha256": "0ca90d2f8647a941e5ac504d721df10b569f16d98695e8b167170736b91993dc"
+        },
+        {
+          "round": 3,
+          "warmup": false,
+          "optimization": "O0",
+          "workers": 1,
+          "compute_seconds": 19.180180792,
+          "wall_seconds": 19.239333958000003,
+          "internal_seconds": 19.1813,
+          "output_sha256": "0ca90d2f8647a941e5ac504d721df10b569f16d98695e8b167170736b91993dc"
+        }
+      ],
+      "summary": [
+        {
+          "optimization": "O0",
+          "workers": 1,
+          "compute_seconds": {
+            "median": 19.302118834,
+            "min": 19.180180792,
+            "max": 19.473739083
+          },
+          "wall_seconds": {
+            "median": 19.358721957999997,
+            "min": 19.239333958000003,
+            "max": 19.528093499999997
+          },
+          "internal_seconds": {
+            "median": 19.3032,
+            "min": 19.1813,
+            "max": 19.4749
+          },
+          "compute_speedup_vs_one": 1.0
+        },
+        {
+          "optimization": "O0",
+          "workers": 8,
+          "compute_seconds": {
+            "median": 4.5679115,
+            "min": 4.529221625,
+            "max": 4.757509333
+          },
+          "wall_seconds": {
+            "median": 4.622852250000008,
+            "min": 4.585828208999999,
+            "max": 4.816127292000001
+          },
+          "internal_seconds": {
+            "median": 4.56901,
+            "min": 4.53049,
+            "max": 4.75855
+          },
+          "compute_speedup_vs_one": 4.2255894918279395
+        }
+      ],
+      "all_outputs_identical": true,
+      "matches_historical_output": true,
+      "historical_reference": "docs/benchmarks/bell-scaling.json",
+      "finished_utc": "2026-10-19T02:23:07.132650+00:00"
+    },
+    {
+      "calibration": false,
+      "started_utc": "2026-10-19T02:23:30.340042+00:00",
+      "machine": {
+        "os": "Darwin",
+        "os_version": "27.0.1",
+        "architecture": "arm64",
+        "logical_cpus": 10,
+        "cpu": "Apple M4",
+        "physical_cpus": 10,
+        "performance_cores": 4,
+        "efficiency_cores": 6
+      },
+      "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+      "source_sha256": "d54fe49335a6921dfc23e3109868b8ffb3eb595ae73a2b656e3dd2de80f25409",
+      "optimization_settings": [
+        "O2"
+      ],
+      "measured_rounds": 3,
+      "width": 240,
+      "height": 120,
+      "grid": 24,
+      "triangles": 1152,
+      "temporary_builds": [
+        {
+          "optimization": "O2",
+          "workers": 1,
+          "instrumented_source_sha256": "190abf02ad8c95a70f7ac57eba5c3aa01aaca55e0e43e35fc012cd7b7d4b20d3",
+          "binary_sha256": "a00a06ce1ad4824969e31a5ce19039403850f309eb5d204571c75f886881e925"
+        },
+        {
+          "optimization": "O2",
+          "workers": 8,
+          "instrumented_source_sha256": "6940267d76452c6aced395cc7a7d4648d2442f0d810eb774375ad3475990c781",
+          "binary_sha256": "a9c045339e7ca2f20fb9b290f7e3907aa00f3447ceabf3fe69c883caebd5a872"
+        }
+      ],
+      "runs": [
+        {
+          "round": 0,
+          "warmup": true,
+          "optimization": "O2",
+          "workers": 1,
+          "compute_seconds": 19.050470584,
+          "wall_seconds": 19.133247208,
+          "internal_seconds": 19.0534,
+          "output_sha256": "8f17f1c568be244d29a417dcc7f1ea719949150cf4a355847698a2a7bbdf9f9e"
+        },
+        {
+          "round": 0,
+          "warmup": true,
+          "optimization": "O2",
+          "workers": 8,
+          "compute_seconds": 11.75074025,
+          "wall_seconds": 11.808435334000002,
+          "internal_seconds": 11.7539,
+          "output_sha256": "8f17f1c568be244d29a417dcc7f1ea719949150cf4a355847698a2a7bbdf9f9e"
+        },
+        {
+          "round": 1,
+          "warmup": false,
+          "optimization": "O2",
+          "workers": 8,
+          "compute_seconds": 9.156287125,
+          "wall_seconds": 9.178745667000001,
+          "internal_seconds": 9.15979,
+          "output_sha256": "8f17f1c568be244d29a417dcc7f1ea719949150cf4a355847698a2a7bbdf9f9e"
+        },
+        {
+          "round": 1,
+          "warmup": false,
+          "optimization": "O2",
+          "workers": 1,
+          "compute_seconds": 19.426668959,
+          "wall_seconds": 19.447724958000002,
+          "internal_seconds": 19.4296,
+          "output_sha256": "8f17f1c568be244d29a417dcc7f1ea719949150cf4a355847698a2a7bbdf9f9e"
+        },
+        {
+          "round": 2,
+          "warmup": false,
+          "optimization": "O2",
+          "workers": 1,
+          "compute_seconds": 18.907338209,
+          "wall_seconds": 18.927563958999997,
+          "internal_seconds": 18.9102,
+          "output_sha256": "8f17f1c568be244d29a417dcc7f1ea719949150cf4a355847698a2a7bbdf9f9e"
+        },
+        {
+          "round": 2,
+          "warmup": false,
+          "optimization": "O2",
+          "workers": 8,
+          "compute_seconds": 10.716509083,
+          "wall_seconds": 10.738440166999993,
+          "internal_seconds": 10.7198,
+          "output_sha256": "8f17f1c568be244d29a417dcc7f1ea719949150cf4a355847698a2a7bbdf9f9e"
+        },
+        {
+          "round": 3,
+          "warmup": false,
+          "optimization": "O2",
+          "workers": 8,
+          "compute_seconds": 11.024969083,
+          "wall_seconds": 11.049316082999994,
+          "internal_seconds": 11.0289,
+          "output_sha256": "8f17f1c568be244d29a417dcc7f1ea719949150cf4a355847698a2a7bbdf9f9e"
+        },
+        {
+          "round": 3,
+          "warmup": false,
+          "optimization": "O2",
+          "workers": 1,
+          "compute_seconds": 19.934395625,
+          "wall_seconds": 19.95782595899999,
+          "internal_seconds": 19.9374,
+          "output_sha256": "8f17f1c568be244d29a417dcc7f1ea719949150cf4a355847698a2a7bbdf9f9e"
+        }
+      ],
+      "summary": [
+        {
+          "optimization": "O2",
+          "workers": 1,
+          "compute_seconds": {
+            "median": 19.426668959,
+            "min": 18.907338209,
+            "max": 19.934395625
+          },
+          "wall_seconds": {
+            "median": 19.447724958000002,
+            "min": 18.927563958999997,
+            "max": 19.95782595899999
+          },
+          "internal_seconds": {
+            "median": 19.4296,
+            "min": 18.9102,
+            "max": 19.9374
+          },
+          "compute_speedup_vs_one": 1.0
+        },
+        {
+          "optimization": "O2",
+          "workers": 8,
+          "compute_seconds": {
+            "median": 10.716509083,
+            "min": 9.156287125,
+            "max": 11.024969083
+          },
+          "wall_seconds": {
+            "median": 10.738440166999993,
+            "min": 9.178745667000001,
+            "max": 11.049316082999994
+          },
+          "internal_seconds": {
+            "median": 10.7198,
+            "min": 9.15979,
+            "max": 11.0289
+          },
+          "compute_speedup_vs_one": 1.8127795916132106
+        }
+      ],
+      "all_outputs_identical": true,
+      "matches_historical_output": true,
+      "historical_reference": "docs/benchmarks/bell-scaling.json",
+      "finished_utc": "2026-10-19T02:25:31.722573+00:00"
+    }
+  ]
+}

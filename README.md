@@ -111,18 +111,18 @@ I added multithreading by splitting the pixels between CPU threads. In my origin
 
 ![Single-thread and eight-thread timing of the original cosine-bell renderer](docs/images/bell-thread-scaling.png)
 
-*New recheck of the preserved bell renderer's eight-worker branch: 3.92× with an unoptimized build and 2.28× with an optimized build on this Apple M4. The panels use different workloads; compare worker counts within each panel. Every output matched its single-thread counterpart. This eight-worker configuration differs from the ten-thread historical test; the original build and exact workload remain unknown. The [bell investigation](docs/bell-performance.md) records the settings, raw trials, and a newly rendered bell image.*
+*New computation-only recheck of the preserved bell renderer's eight-worker branch: 4.23× with an unoptimized build and 1.81× with an optimized build on this Apple M4. The panels use different workloads; compare worker counts within each panel. Every output matched its single-thread counterpart. This eight-worker configuration differs from the ten-thread historical test; the original build and exact workload remain unknown. The [bell investigation](docs/bell-performance.md) records the settings, raw trials, and a newly rendered bell image.*
 
 The following separate worker-count sweep uses the maintained renderer on the same Apple M4, with four performance cores and six efficiency cores:
 
-![Measured rendering time versus worker count for two image sizes](docs/images/thread-scaling.png)
+![Rendering-computation time versus worker count for two image sizes](docs/images/thread-scaling.png)
 
 | Render | One worker | Ten workers (automatic) | Speedup |
 | --- | ---: | ---: | ---: |
-| 160×80 pixels, 800 triangles | 54.0 ms | 16.8 ms | 3.22× |
-| 640×320 pixels, 3,200 triangles | 3.168 s | 0.882 s | 3.59× |
+| 160×80 pixels, 800 triangles | 50.5 ms | 12.2 ms | 4.13× |
+| 640×320 pixels, 3,200 triangles | 3.134 s | 0.811 s | 3.86× |
 
-These are medians of five timed runs per configuration after a warmup, with worker counts interleaved in shuffled order. Timings include process startup, scene construction, rendering, and writing the image. Every output hash matched across worker counts. This measures one machine and one session; it does not establish the old hardware estimates or guarantee the same speedup elsewhere.
+These are medians of five timed runs per configuration after a warmup, with worker counts interleaved in shuffled order. Timings cover only rendering computation, excluding process startup, scene construction, and image or terminal output. Worker launch/join and allocation inside the rendering phase remain included; the [timing boundaries](docs/timing.md) give the precise scope. Every output hash matched across worker counts. These are fresh measurements from one machine and session; differences from the earlier published values also reflect session variation, and the results do not guarantee the same speedup elsewhere.
 
 The [performance notes and raw measurements](docs/performance.md) include another test of the original swirl renderer and explain why the unused result in the original array-summing `threading.cpp` makes that small test unreliable as an optimized benchmark.
 

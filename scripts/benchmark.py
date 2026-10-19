@@ -19,6 +19,27 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKLOADS = [("Quick start", 160, 80, 20), ("Larger render", 640, 320, 40)]
+COMPUTE_TIMER_START = "    auto publication_compute_start = std::chrono::steady_clock::now();\n"
+COMPUTE_TIMER_STOP = ("    auto publication_compute_stop = std::chrono::steady_clock::now();\n"
+                      "    double publication_compute_seconds = std::chrono::duration<double>(publication_compute_stop-publication_compute_start).count();\n"
+                      "    std::cerr.precision(17);\n"
+                      "    std::cerr << \"render computation: \" << publication_compute_seconds << \" seconds\\n\";\n")
+
+
+def instrument_compute_timer(source):
+    """Add only timing instrumentation to a temporary archived-source copy."""
+    start_anchor = "    if (multithread){"
+    stop_anchor = '    for (double p : pixel_colors) output << p << " ";'
+    if source.count(start_anchor) != 1 or source.count(stop_anchor) != 1:
+        raise ValueError("Archived dispatch/output anchors changed; review timer boundaries before running")
+    return source.replace(start_anchor, COMPUTE_TIMER_START + start_anchor).replace(stop_anchor, COMPUTE_TIMER_STOP + stop_anchor)
+
+
+def parse_compute(stderr):
+    match = re.search(r"render computation: ([\d.eE+-]+) seconds", stderr)
+    if not match or float(match[1]) <= 0:
+        raise ValueError("Missing positive computation-only timer; rebuild maintained renderer or review instrumentation")
+    return float(match[1])
 
 
 def command_output(command):
@@ -49,10 +70,12 @@ def run_benchmarks(args):
     if automatic not in (1, 2, 4, 8):
         workers.append(("auto", 0))
     compiler = command_output([os.environ.get("CXX", "c++"), "--version"])
-    result = {"started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    result = {"metric": "compute_seconds", "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
               "machine": machine_info(), "compiler": compiler.splitlines()[0] if compiler else None,
               "build_command": args.build_command, "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
-              "method": {"clock": "time.perf_counter", "timing": "subprocess start through exit, including scene construction, rendering, PGM output and startup",
+              "source_sha256": {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in ("src/main.cpp", "src/raytracer.hpp")},
+              "method": {"clock": "std::chrono::steady_clock", "timing": "ONLY raytracer::render invocation, after pixels/scene/direction construction and before image/ASCII output; includes result allocation and worker launch/join",
+                         "wall_seconds": "diagnostic perf_counter subprocess launch through exit; not used for speedup",
                          "warmups_per_configuration": 1, "rounds": args.rounds, "shuffle_seed": args.seed,
                          "order": "one warmup per configuration, then interleaved rounds; configurations shuffled each round",
                          "checksum_timing": "after timing, excluded from wall_seconds"}, "workloads": []}
@@ -79,14 +102,15 @@ def run_benchmarks(args):
                     match = re.search(r"(\d+) workers;.* in ([\d.eE+-]+) seconds", completed.stderr)
                     if not match:
                         raise RuntimeError("Could not parse renderer worker count/timing")
+                    compute = parse_compute(completed.stderr)
                     run = {"round": round_number, "warmup": round_number == 0, "configuration": label,
                            "requested_threads": requested, "actual_workers": int(match[1]),
-                           "wall_seconds": elapsed, "renderer_seconds": float(match[2]), "pgm_sha256": digest}
+                           "compute_seconds": compute, "wall_seconds": elapsed, "renderer_total_seconds": float(match[2]), "pgm_sha256": digest}
                     workload["runs"].append(run)
-                    print(f"{title}: {'warmup' if round_number == 0 else f'round {round_number}'} / {label}: {elapsed:.4f}s", flush=True)
+                    print(f"{title}: {'warmup' if round_number == 0 else f'round {round_number}'} / {label}: compute {compute:.6f}s (wall {elapsed:.4f}s)", flush=True)
             for label, requested in workers:
                 runs = [r for r in workload["runs"] if not r["warmup"] and r["configuration"] == label]
-                values = [r["wall_seconds"] for r in runs]
+                values = [r["compute_seconds"] for r in runs]
                 workload["summary"].append({"configuration": label, "actual_workers": runs[0]["actual_workers"],
                                             "median_seconds": statistics.median(values), "min_seconds": min(values),
                                             "max_seconds": max(values)})
@@ -95,6 +119,12 @@ def run_benchmarks(args):
                 entry["speedup_vs_one"] = baseline / entry["median_seconds"]
             workload["all_images_identical"] = True
             workload["pgm_sha256"] = expected_hash
+            historical = json.loads((ROOT / "docs/benchmarks/thread-scaling.json").read_text())
+            previous = next(w for w in historical["workloads"] if (w["width"],w["height"],w["grid"]) == (width,height,grid))
+            if expected_hash != previous["pgm_sha256"]:
+                raise RuntimeError("Maintained image differs from historical same-workload output")
+            workload["matches_historical_output"] = True
+            workload["historical_reference"] = "docs/benchmarks/thread-scaling.json"
             result["workloads"].append(workload)
     result["finished_utc"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -105,26 +135,34 @@ def run_benchmarks(args):
 def run_legacy(args):
     source = (ROOT / "experiments/multithread/render.cpp").read_text()
     compiler = command_output(["c++", "--version"])
-    result = {"started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    result = {"metric": "compute_seconds", "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
               "machine": machine_info(), "compiler_flags": "-O2 -std=c++17 -pthread",
               "compiler": compiler.splitlines()[0] if compiler else None,
               "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
               "source": "experiments/multithread/render.cpp", "width": 200, "height": 100, "grid": 20,
               "pixel_count": 20000, "multi_workers": os.cpu_count() or 0,
               "method": {"rounds": args.rounds, "warmups_per_configuration": 1,
-                         "shuffle_seed": args.seed, "timing": "subprocess start through exit including original text pixel output",
+                         "shuffle_seed": args.seed, "clock": "std::chrono::steady_clock", "timing": "ONLY dispatch if/else, after pixel_colors allocation and before text pixel output; includes worker launch/join",
+                         "wall_seconds": "diagnostic subprocess start through exit; not used for speedup",
                          "substitutions": ["paint_in_terminal = false", "multithread = true / false"],
+                         "timer_start_injection": COMPUTE_TIMER_START, "timer_stop_injection": COMPUTE_TIMER_STOP,
+                         "timer_start_location": "immediately before if (multithread){, after pixel_colors allocation",
+                         "timer_stop_location": "immediately before for (double p : pixel_colors) output ...; after completed if/else",
                          "note": "Temporary builds; archive unchanged. This retains known geometry and thread-remainder defects."},
-              "runs": []}
+              "temporary_builds": [], "runs": []}
     rng = random.Random(args.seed)
     hashes = set()
     with tempfile.TemporaryDirectory(prefix="raytracer-legacy-benchmark-") as directory:
         working = Path(directory)
         for label, enabled in [("single", "false"), ("multi", "true")]:
             variant = source.replace("bool multithread = true;", f"bool multithread = {enabled};").replace("bool paint_in_terminal = true;", "bool paint_in_terminal = false;")
+            variant = instrument_compute_timer(variant)
             cpp = working / f"{label}.cpp"
             cpp.write_text(variant)
             subprocess.run(["c++", "-O2", "-std=c++17", "-pthread", str(cpp), "-o", str(working / label)], check=True)
+            result["temporary_builds"].append({"configuration": label,
+                                               "instrumented_source_sha256": hashlib.sha256(variant.encode()).hexdigest(),
+                                               "binary_sha256": hashlib.sha256((working / label).read_bytes()).hexdigest()})
         for round_number in range(args.rounds + 1):
             order = ["single", "multi"]
             rng.shuffle(order)
@@ -138,17 +176,25 @@ def run_legacy(args):
                 if len((working / "output.txt").read_text().split()) != 20000:
                     raise RuntimeError("Unexpected legacy pixel count")
                 digest = hashlib.sha256((working / "output.txt").read_bytes()).hexdigest()
+                compute = parse_compute(completed.stderr)
+                total_timer = re.search(r"\nprocessing time: ([\d.eE+-]+) seconds", completed.stdout)
                 hashes.add(digest)
                 result["runs"].append({"round": round_number, "warmup": round_number == 0,
-                                       "configuration": label, "wall_seconds": elapsed, "output_sha256": digest})
-                print(f"Legacy: round {round_number} / {label}: {elapsed:.4f}s", flush=True)
+                                       "configuration": label, "compute_seconds": compute, "wall_seconds": elapsed,
+                                       "original_total_seconds": float(total_timer[1]), "output_sha256": digest})
+                print(f"Legacy: round {round_number} / {label}: compute {compute:.6f}s (wall {elapsed:.4f}s)", flush=True)
         result["summary"] = []
         for label in ("single", "multi"):
-            times = [r["wall_seconds"] for r in result["runs"] if not r["warmup"] and r["configuration"] == label]
+            times = [r["compute_seconds"] for r in result["runs"] if not r["warmup"] and r["configuration"] == label]
             result["summary"].append({"configuration": label, "median_seconds": statistics.median(times),
                                       "min_seconds": min(times), "max_seconds": max(times)})
         result["summary"][1]["speedup_vs_single"] = result["summary"][0]["median_seconds"] / result["summary"][1]["median_seconds"]
     result["all_images_identical"] = len(hashes) == 1
+    historical = json.loads((ROOT / "docs/benchmarks/legacy-renderer.json").read_text())
+    if hashes != {r["output_sha256"] for r in historical["runs"]}:
+        raise RuntimeError("Legacy output differs from historical same-workload output")
+    result["matches_historical_output"] = True
+    result["historical_reference"] = "docs/benchmarks/legacy-renderer.json"
     result["finished_utc"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
@@ -157,11 +203,15 @@ def run_legacy(args):
 
 
 def chart(input_path, output_path):
+    result = json.loads(input_path.read_text())
+    if result.get("metric") != "compute_seconds":
+        raise SystemExit("Chart requires new metric=compute_seconds data; old timings cannot be relabeled.")
+    if any("compute_seconds" not in run for w in result["workloads"] for run in w["runs"]):
+        raise SystemExit("Chart requires actual per-run computation samples.")
     # Optional dependency is isolated from the measurement path.
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    result = json.loads(input_path.read_text())
     hardware = result["machine"]
     with plt.rc_context({"font.family": "DejaVu Sans", "font.size": 11,
                          "axes.spines.top": False, "axes.spines.right": False,
@@ -184,7 +234,7 @@ def chart(input_path, output_path):
             axis.set_yticks(range(len(rows)), labels)
             axis.invert_yaxis()
             axis.set_title(f"{workload['name']}\n{workload['width']} × {workload['height']} pixels · {workload['triangles']:,} triangles", loc="left", fontsize=13, pad=16)
-            axis.set_xlabel("End-to-end wall time (seconds) ↓", labelpad=12)
+            axis.set_xlabel("Rendering computation (seconds) ↓", labelpad=12)
             axis.set_ylabel("CPU workers")
             maximum = max(r["max_seconds"] for r in rows)
             axis.set_xlim(0, maximum * 1.45)
@@ -196,7 +246,7 @@ def chart(input_path, output_path):
                           f"{row['median_seconds']:.3f}s  ·  {row['speedup_vs_one']:.2f}×", va="center", fontsize=10)
         fig.subplots_adjust(left=0.075, right=0.98, top=0.73, bottom=0.22, wspace=0.3)
         fig.text(0.06, 0.095, "Bars: medians · whiskers: min–max · speedup relative to one worker", fontsize=11)
-        fig.text(0.06, 0.045, "One machine, one session; startup, scene construction and PGM writing included. Output hashes matched.", fontsize=10, color="#56616a")
+        fig.text(0.06, 0.045, "Render only, including worker launch/join; startup, scene construction and image/terminal output excluded.", fontsize=10, color="#56616a")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_path, dpi=180, facecolor=fig.get_facecolor())
         plt.close(fig)
@@ -213,15 +263,18 @@ def main():
     parser.add_argument("--chart-output", type=Path, default=ROOT / "docs/images/thread-scaling.png")
     args = parser.parse_args()
     if args.output is None:
-        args.output = ROOT / "docs/benchmarks" / ("legacy-renderer.json" if args.legacy else "thread-scaling.json")
+        args.output = ROOT / "docs/benchmarks" / ("legacy-compute.json" if args.legacy else "thread-compute.json")
     if args.rounds < 1:
         parser.error("--rounds must be positive")
     if args.chart:
         chart(args.chart, args.chart_output)
-    elif args.legacy:
-        run_legacy(args)
     else:
-        run_benchmarks(args)
+        if args.output.exists() and json.loads(args.output.read_text()).get("metric") != "compute_seconds":
+            parser.error("Refusing to overwrite an old timing record with new computation measurements")
+        if args.legacy:
+            run_legacy(args)
+        else:
+            run_benchmarks(args)
 
 
 if __name__ == "__main__":

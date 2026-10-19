@@ -1,62 +1,60 @@
-# Single worker versus multiple workers
+# Rendering computation: one worker versus multiple workers
 
-The renderer divides pixels among CPU workers. Each pixel still tests every triangle: threading shares the work across cores, but does not change the underlying pixels × triangles cost.
+The current tables and charts time only the rendering-computation phase. Camera and scene construction, normal/brightness precomputation, process startup, file I/O, terminal output, and hashing are outside the interval. Allocation inside `render()` and worker launch/join remain included. The [timing boundaries](timing.md) identify the exact start and stop points.
 
 ## Original testing
 
-Derek recalls that **ten threads gave roughly a 6–7× speedup in the original testing**, specifically on the bell-shaped visualization at relatively high resolution and triangle counts. He also recalls Activity Monitor’s CPU chart becoming fully saturated. He clarified the historical thread count after the publication benchmarks were completed. This is the author's account of the earlier project, preserved alongside the new measurements. Exact dimensions, mesh size, compiler flags, timing boundaries, and timing logs for that comparison have not been recovered. The new measurements below use explicitly recorded settings and do not reconstruct those original conditions. Differences between sessions cannot be attributed to a particular cause from these records alone.
+In the original bell-shaped visualization, Derek recalls a roughly **6–7× speedup with ten threads** at relatively high image resolution and triangle counts, with Activity Monitor’s CPU chart saturated. Exact workload dimensions, build flags, and timing logs have not been recovered. The [dedicated bell investigation](bell-performance.md) measures the archived `og_hat.cpp` eight-worker branch separately from that ten-thread historical account.
 
-The [dedicated bell investigation](bell-performance.md) rechecks `og_hat.cpp` with its original fixed eight-worker partition, using both unoptimized and optimized builds. Those eight-worker runs differ from the recalled ten-thread configuration. Their recorded settings and measurements are preserved separately from the maintained swirl measurements below.
+## Maintained renderer
 
-![End-to-end runtime by worker count, with min–max whiskers](images/thread-scaling.png)
+![Rendering-computation time by worker count, with min–max whiskers](images/thread-scaling.png)
 
-## Measured results
+These fresh measurements use an Apple M4 (four performance cores, six efficiency cores), arm64, macOS 27.0.1; Apple clang 21.0.0 with `-O2 -std=c++17 -Wall -Wextra -Wpedantic -pthread`.
 
-These are measurements from one publication-maintenance session on an Apple M4 (4 performance cores, 6 efficiency cores), arm64, macOS 27.0.1. The compiler was Apple clang 21.0.0, using `-O2 -std=c++17 -Wall -Wextra -Wpedantic -pthread`. They describe the maintained renderer, not the historical implementation's performance.
-
-| Workers | 160×80, grid 20: median seconds | Speedup | 640×320, grid 40: median seconds | Speedup |
+| Workers | 160×80, grid 20: median computation | Speedup | 640×320, grid 40: median computation | Speedup |
 | --- | ---: | ---: | ---: | ---: |
-| 1 | 0.0540 | 1.00× | 3.1681 | 1.00× |
-| 2 | 0.0294 | 1.84× | 1.7774 | 1.78× |
-| 4 | 0.0228 | 2.37× | 1.1246 | 2.82× |
-| 8 | 0.0176 | 3.08× | 0.9196 | 3.45× |
-| Auto (10) | 0.0168 | 3.22× | 0.8818 | 3.59× |
+| 1 | 0.050541 s | 1.00× | 3.134211 s | 1.00× |
+| 2 | 0.024824 s | 2.04× | 1.814998 s | 1.73× |
+| 4 | 0.014392 s | 3.51× | 1.172353 s | 2.67× |
+| 8 | 0.012624 s | 4.00× | 0.842938 s | 3.72× |
+| Auto (10) | 0.012245 s | 4.13× | 0.811318 s | 3.86× |
 
-Grid 20 contains 800 triangles; grid 40 contains 3,200. All generated PGM files were byte-identical across worker counts and repetitions within each workload, checked with SHA-256. The two different workloads intentionally produce different images.
+Grid 20 contains 800 triangles; grid 40 contains 3,200. Each setting received one warmup and five measured runs, interleaved in a deterministically shuffled order. Every image hash matched across worker counts, repetitions, and the earlier same-workload output.
 
-More workers helped both workloads in this session. Ten workers did not provide a tenfold speedup: scene construction and output remain serial, worker creation has overhead, and this CPU has different core types. These measurements do not isolate how much each factor contributed. The small workload is particularly sensitive to startup and scheduling. The observed runtime ranges overlap for some adjacent worker settings; five repetitions do not establish a universal best worker count.
+The metric is elapsed `std::chrono::steady_clock` time immediately around `raytracer::render(...)`, before any PGM or ASCII output. The executable reports it as `render computation: ... seconds`. This is wall-clock duration for the relevant phase, not summed CPU time across threads. The benchmark uses only that field for medians, ranges, speedups, and chart bars. Whole-process time and the older broad internal timer are recorded only as diagnostics.
 
-## Reproduce the comparison
+More workers helped in this session, with diminishing gains. Thread management, different core speeds, memory behavior, and scheduling can affect the result; these measurements do not isolate each contribution. Other desktop activity, thermal state, and power mode were not controlled. New ratios are fresh measurements: differences from the earlier publication values also reflect variation between sessions, not just a changed timer boundary.
+
+## Reproduce
 
 ```sh
 make -B CXX=c++ CXXFLAGS='-O2 -std=c++17 -Wall -Wextra -Wpedantic'
-python3 scripts/benchmark.py --output docs/benchmarks/thread-scaling.json
+python3 scripts/benchmark.py --output /tmp/my-thread-compute.json
 ```
 
-The benchmark runner requires only Python's standard library and the built C++ executable. It runs the same fixed swirl scene at each worker count, with ASCII output disabled. Each workload gets one warmup per worker setting, excluded from the summaries, followed by five measured rounds. Every round shuffles the worker settings with a recorded deterministic seed. Automatic selection is added when its expected worker count is not already covered by 1, 2, 4 or 8. Each process is limited to 120 seconds.
-
-Wall time is measured using `time.perf_counter()` from immediately before subprocess launch through process exit. It includes process startup, camera and scene construction, rendering, and writing the PGM into a temporary directory. Image hashing happens afterward and is excluded. The renderer's narrower internal timer is also recorded separately; the chart and table use end-to-end wall time. Build time and warmups are excluded from summaries.
-
-The raw [measurement record](benchmarks/thread-scaling.json) includes every warmup and measured sample, execution order, minimum/median/maximum, output hashes, compiler/build information, hardware information, and UTC timestamps. Machine load, thermal state, power mode and filesystem cache were not controlled; other desktop activity could affect the session. Do not generalize these speedups to other hardware or use them as a precise kernel-only comparison.
-
-To regenerate just the static chart, install Matplotlib in an environment of your choice and run:
+Measurement requires only Python’s standard library and the built executable. Each subprocess has a 120-second limit. To regenerate the published chart from the [computation record](benchmarks/thread-compute.json), install Matplotlib in an optional plotting environment and run:
 
 ```sh
-python3 scripts/benchmark.py --chart docs/benchmarks/thread-scaling.json
+python3 scripts/benchmark.py --chart docs/benchmarks/thread-compute.json
 ```
 
-## What the original threading files establish
+The raw record includes individual trials, warmups, computation and diagnostic times, min/median/max summaries, output hashes, compiler/build information, source/binary hashes, hardware, and UTC timestamps. Chart generation rejects older records without the computation metric rather than silently changing their labels.
 
-`experiments/multithread/threading.cpp` explores splitting an eight-million-element sum into eight tasks. Its final accumulator is never printed or otherwise consumed, so an optimizing compiler may eliminate the single-thread arithmetic. It always runs the multithread case first, and it measures integer summation rather than rendering. Its timings cannot establish a rendering speedup.
+## Original threading experiments
 
-`experiments/multithread/render.cpp` contains an actual single/multithread switch, fixed scene settings and a render timer. Its historical estimated-runtime constants are not controlled benchmark results. The archived renderer also retains known nearest-hit and incomplete-workload-partitioning defects; an equal-output timing comparison does not establish geometric correctness.
+The small array-summing `experiments/multithread/threading.cpp` does not establish rendering performance: its unused result can be optimized away, its ordering is fixed, and it measures a different workload. The original bell and swirl renderers contain actual single/multithread paths. Their geometry and partitioning defects remain in the archive, so matching output does not establish geometric correctness.
 
-For a separate archival check, temporary copies were compiled with `c++ -O2 -std=c++17 -pthread`. The only substitutions were `paint_in_terminal = false` and toggling `multithread` between `true` and `false`. Turning off terminal display also changes the original `font_adjust` to 1.0, giving **200×100 pixels, grid 20**, with 10 workers in the multithread case. The archive itself was not edited.
+The archived swirl comparison uses temporary copies of `experiments/multithread/render.cpp`: terminal display is disabled, and the single/multithread switch is toggled. Image mode produces 200×100 pixels and 800 triangles. A steady-clock timer is injected immediately before the dispatch branch and stopped before the text-output loop, with worker launch/join included. Original source files remain unchanged.
 
-With one warmup per setting and five interleaved, shuffled measured rounds, original single-thread median end-to-end time was **9.5635 s** (range 9.4808–9.6587 s), versus **4.9954 s** with multiple threads (4.4747–5.5625 s): **1.91×** in this session. Every original text pixel output had the same SHA-256. This checks that the timing variants produced the same original output on this machine; it does not correct the original rendering algorithm. These runs use different dimensions and text output from the maintained renderer, so the two sets of numbers are not a controlled before/after cleanup comparison. The separate [raw archival results](benchmarks/legacy-renderer.json) record the individual runs.
+With `-O2 -std=c++17 -pthread`, one worker took a median **9.4902 s** (range 9.3109–9.5242); ten workers took **5.0087 s** (4.6419–5.4831), a **1.89×** computation speedup. Each setting received one warmup and three measured runs in shuffled paired order. All eight outputs matched each other and the earlier same-workload output. This is a different implementation and workload from the maintained sweep above.
 
 ```sh
-python3 scripts/benchmark.py --legacy --output docs/benchmarks/legacy-renderer.json
+python3 scripts/benchmark.py --legacy --rounds 3 --output /tmp/my-legacy-compute.json
 ```
 
-The original render keeps its own historical hardware estimates in its stdout; the benchmark ignores those estimates and measures actual wall time. Temporary files are removed after measurement. The published chart shows only the maintained renderer, keeping that comparison consistent.
+The [fresh archival computation record](benchmarks/legacy-compute.json) records all trials, temporary instrumentation, source/build hashes, and diagnostic broader timings. Each process has a 60-second timeout.
+
+## Earlier measurements
+
+The earlier [maintained-renderer](benchmarks/thread-scaling.json), [bell](benchmarks/bell-scaling.json), and [archived swirl](benchmarks/legacy-renderer.json) records retain their original, broader timing scopes. They are archival records, not inputs to the current computation-only charts. Their setup or I/O durations were not estimated and subtracted after measurement.

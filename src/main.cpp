@@ -1,6 +1,7 @@
 #include "raytracer.hpp"
 #include <chrono>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
@@ -47,7 +48,11 @@ int main(int argc, char** argv) {
         auto pixels=raytracer::create_pixels(width,height);
         auto triangles=raytracer::make_scene(grid);
         auto D=raytracer::compute_normal({pixels[0],pixels[width],pixels[1]});
+        // Time the render phase separately from scene setup and image I/O.
+        // Allocation and worker launch/join inside render remain part of its cost.
+        auto compute_start=std::chrono::steady_clock::now();
         auto colors=raytracer::render(triangles,pixels,D,threads);
+        double compute_seconds=std::chrono::duration<double>(std::chrono::steady_clock::now()-compute_start).count();
         output << "P5\n" << width << ' ' << height << "\n255\n";
         for (double p : colors) output.put(static_cast<char>(std::lround(std::clamp(p,0.0,1.0)*255)));
         output.close();
@@ -63,6 +68,7 @@ int main(int argc, char** argv) {
         std::cerr << width << 'x' << height << ", " << triangles.size() << " triangles, "
                   << raytracer::worker_count(threads,pixels.size(),std::thread::hardware_concurrency())
                   << " workers; wrote " << path << " in " << seconds << " seconds\n";
+        std::cerr << "render computation: " << std::setprecision(9) << compute_seconds << " seconds\n";
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "raytracer: " << e.what() << '\n';
